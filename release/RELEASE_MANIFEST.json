@@ -1,0 +1,16 @@
+{
+  "name": "codex_monorepo_v0_1_alpha",
+  "created_at": "2026-07-09T12:07:45.622818Z",
+  "purpose": "monorepo transition scaffold",
+  "components": [
+    "engine",
+    "studio",
+    "api",
+    "cloud",
+    "plugins",
+    "language_packs",
+    "docs",
+    "tests",
+    "release"
+  ]
+}
