@@ -8,7 +8,7 @@ from .language_packs import LanguagePackManager
 from .lexicon import InMemoryLexiconProvider, LexiconProvider
 from .plugins import ExactAnagramPlugin, PluginRegistry
 
-ENGINE_VERSION = "2.3-alpha"
+ENGINE_VERSION = "2.4-alpha"
 
 
 class EngineService:
@@ -33,7 +33,7 @@ class EngineService:
         return {
             "engine_version": ENGINE_VERSION,
             "language_packs": [pack.version for pack in self.language_packs()],
-            "plugins": [plugin.name for plugin in self.plugins.list_plugins()],
+            "plugins": [f"{plugin.name}:{plugin.version}" for plugin in self.plugins.list_plugins()],
         }
 
     def discover(

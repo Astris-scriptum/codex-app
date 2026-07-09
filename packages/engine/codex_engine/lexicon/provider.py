@@ -10,6 +10,8 @@ class LexiconEntry:
     translation: str
     meaning: str = ""
     language: str = "Latin"
+    part_of_speech: str = ""
+    tags: tuple[str, ...] = ()
 
 
 class LexiconProvider(Protocol):
@@ -22,13 +24,13 @@ class InMemoryLexiconProvider:
 
     def __init__(self, entries: list[LexiconEntry] | None = None) -> None:
         self._entries = entries or [
-            LexiconEntry("CLAVIS", "key", "key; symbolic opening"),
-            LexiconEntry("CAELO", "to/from heaven", "heaven/sky, dative or ablative reading"),
-            LexiconEntry("NOS", "we/us/ours", "first person plural pronoun"),
-            LexiconEntry("SOLIS", "of the sun / alone / only", "ambiguous genitive or adjective/adverbial reading"),
-            LexiconEntry("VOCIS", "of the voice", "genitive of vox"),
-            LexiconEntry("LEO", "lion / Leo", "zodiac and animal symbol"),
-            LexiconEntry("ARCANA", "arcana / mysteries", "hidden or sacred mysteries"),
+            LexiconEntry("CLAVIS", "key", "key; symbolic opening", part_of_speech="noun"),
+            LexiconEntry("CAELO", "to/from heaven", "heaven/sky, dative or ablative reading", part_of_speech="noun"),
+            LexiconEntry("NOS", "we/us/ours", "first person plural pronoun", part_of_speech="pronoun"),
+            LexiconEntry("SOLIS", "of the sun / alone / only", "ambiguous genitive or adjective/adverbial reading", part_of_speech="noun"),
+            LexiconEntry("VOCIS", "of the voice", "genitive of vox", part_of_speech="noun"),
+            LexiconEntry("LEO", "lion / Leo", "zodiac and animal symbol", part_of_speech="noun"),
+            LexiconEntry("ARCANA", "arcana / mysteries", "hidden or sacred mysteries", part_of_speech="noun"),
         ]
 
     def entries(self, language: str) -> list[LexiconEntry]:
