@@ -1,0 +1,20 @@
+{
+  "language": "Latin",
+  "version": "latin_v1",
+  "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "normalisation_rules": [
+    "uppercase",
+    "strip_spaces",
+    "strip_punctuation"
+  ],
+  "transformation_rules": [
+    "exact_letter_inventory"
+  ],
+  "scoring_profile": "symbolic_score_v1",
+  "digraphs": [],
+  "ligatures": {
+    "Æ": "AE",
+    "Œ": "OE"
+  },
+  "substitutions": {}
+}

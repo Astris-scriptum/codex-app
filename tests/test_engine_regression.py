@@ -1,20 +1,33 @@
 import sys
 from pathlib import Path
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "packages" / "shared"))
 sys.path.insert(0, str(ROOT / "packages" / "engine"))
+
 from codex_engine import EngineService
+
 
 def test_nicolas_velasco_regression():
     engine = EngineService()
-    assert any(c.text == "CLAVIS CAELO NOS" for c in engine.discover("NICOLAS VELASCO"))
+    results = engine.discover("NICOLAS VELASCO")
+    assert any(candidate.text == "CLAVIS CAELO NOS" for candidate in results)
+
 
 def test_candidate_has_complete_provenance():
-    candidate = EngineService().discover("NICOLAS VELASCO")[0]
-    p = candidate.provenance
-    assert p.source_pool.raw_input == "NICOLAS VELASCO"
-    assert p.source_pool.normalised_input == "NICOLASVELASCO"
-    assert p.language_pack.version == "latin_v1"
-    assert p.search_mode.value == "exact_anagram"
-    assert p.engine_version == "2.2-alpha"
-    assert p.score_breakdown.total > 0
+    engine = EngineService()
+    candidate = engine.discover("NICOLAS VELASCO")[0]
+    provenance = candidate.provenance
+
+    assert provenance.source_pool.raw_input == "NICOLAS VELASCO"
+    assert provenance.source_pool.normalised_input == "NICOLASVELASCO"
+    assert provenance.language_pack.version == "latin_v1"
+    assert provenance.search_mode.value == "exact_anagram"
+    assert provenance.engine_version == "2.3-alpha"
+    assert provenance.score_breakdown.total > 0
+
+
+def test_engine_reports_plugins_and_language_packs():
+    stats = EngineService().statistics()
+    assert "latin_v1" in stats["language_packs"]
+    assert "exact_anagram" in stats["plugins"]
