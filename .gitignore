@@ -19,3 +19,7 @@ outputs/
 .env.*
 *.pem
 *.key
+
+# macOS Finder metadata
+Icon?
+._*
