@@ -23,3 +23,9 @@ outputs/
 # macOS Finder metadata
 Icon?
 ._*
+
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.fseventsd
