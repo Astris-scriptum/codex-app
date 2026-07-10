@@ -23,12 +23,12 @@ def test_candidate_has_complete_provenance():
     assert provenance.source_pool.normalised_input == "NICOLASVELASCO"
     assert provenance.language_pack.version == "latin_v1"
     assert provenance.search_mode.value == "exact_anagram"
-    assert provenance.engine_version == "2.5-alpha"
+    assert provenance.engine_version == "2.6-alpha"
     assert provenance.score_breakdown.total > 0
 
 
 def test_engine_reports_plugins_and_language_packs():
     stats = EngineService().statistics()
     assert "latin_v1" in stats["language_packs"]
-    assert "exact_anagram:1.2.0" in stats["plugins"]
+    assert "exact_anagram:1.3.0" in stats["plugins"]
     assert stats["streaming"] is True
