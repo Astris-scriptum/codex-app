@@ -1,1 +1,2 @@
-__version__ = "0.4-alpha-scaffold"
+from .server import CodexStudioServer
+__all__ = ["CodexStudioServer"]
