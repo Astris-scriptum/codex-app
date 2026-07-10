@@ -23,7 +23,7 @@ def test_candidate_has_complete_provenance():
     assert provenance.source_pool.normalised_input == "NICOLASVELASCO"
     assert provenance.language_pack.version == "latin_v1"
     assert provenance.search_mode.value == "exact_anagram"
-    assert provenance.engine_version == "2.6-alpha"
+    assert provenance.engine_version == "2.7-alpha"
     assert provenance.score_breakdown.total > 0
 
 
