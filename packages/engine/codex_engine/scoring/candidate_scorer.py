@@ -2,19 +2,20 @@ from __future__ import annotations
 
 from codex_shared import ScoreBreakdown
 
+from ..grammar import GrammarEngine
 from ..lexicon import LexiconEntry
 
 
 class CandidateScorer:
-    """Deterministic alpha scoring model.
+    """Deterministic alpha scoring model with grammar boundary."""
 
-    This is intentionally simple but structured. Future versions can replace the
-    internals without changing the plugin/service contract.
-    """
+    def __init__(self, grammar_engine: GrammarEngine | None = None) -> None:
+        self.grammar_engine = grammar_engine or GrammarEngine()
 
     def score(self, entries: tuple[LexiconEntry, ...]) -> ScoreBreakdown:
         words = [entry.text for entry in entries]
-        grammar = self._grammar_score(entries)
+        grammar_assessment = self.grammar_engine.assess(entries)
+        grammar = grammar_assessment.score
         symbolism = self._symbolism_score(words)
         rarity = self._rarity_score(entries)
         semantic = self._semantic_score(words)
@@ -32,13 +33,11 @@ class CandidateScorer:
             symbolism=symbolism,
             rarity=rarity,
             semantic=semantic,
-            notes={"model": "candidate_scorer_v1"},
+            notes={
+                "model": "candidate_scorer_v2",
+                "grammar_notes": list(grammar_assessment.notes),
+            },
         )
-
-    def _grammar_score(self, entries: tuple[LexiconEntry, ...]) -> float:
-        has_noun = any(entry.part_of_speech == "noun" for entry in entries)
-        has_pronoun = any(entry.part_of_speech == "pronoun" for entry in entries)
-        return 8.5 if has_noun and has_pronoun else 7.0 if has_noun else 5.0
 
     def _symbolism_score(self, words: list[str]) -> float:
         symbolic = {"CLAVIS", "CAELO", "ARCANA", "SOLIS", "LEO"}

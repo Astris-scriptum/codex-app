@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
+
 from codex_shared import Candidate, LanguagePack, Provenance, SearchMode, SourcePool
 
 from ..lexicon import LexiconEntry, LexiconProvider
 from ..scoring import CandidateScorer
 from ..search import RecursiveExactAnagramSolver
+from ..streaming import SearchEvent
 
 
 class ExactAnagramPlugin:
     name = "exact_anagram"
-    version = "1.1.0"
+    version = "1.2.0"
     search_mode = SearchMode.EXACT_ANAGRAM
 
     def __init__(self, lexicon_provider: LexiconProvider, engine_version: str) -> None:
@@ -19,13 +22,22 @@ class ExactAnagramPlugin:
         self.scorer = CandidateScorer()
 
     def discover(self, source_pool: SourcePool, language_pack: LanguagePack) -> list[Candidate]:
+        return list(self._discover_candidates(source_pool, language_pack))
+
+    def stream(self, source_pool: SourcePool, language_pack: LanguagePack) -> Iterator[SearchEvent]:
+        yield SearchEvent(event_type="started", message="Exact anagram search started.", sequence=0)
+        for index, candidate in enumerate(self._discover_candidates(source_pool, language_pack), start=1):
+            yield SearchEvent(event_type="candidate", candidate=candidate, sequence=index)
+        yield SearchEvent(event_type="completed", message="Exact anagram search completed.", sequence=index if 'index' in locals() else 0)
+
+    def _discover_candidates(self, source_pool: SourcePool, language_pack: LanguagePack):
         entries = self.lexicon_provider.entries(language_pack.language)
         phrases = self.solver.solve(source_pool.normalised_input, entries)
         candidates = [
             self._candidate(phrase, source_pool, language_pack)
             for phrase in phrases
         ]
-        return sorted(
+        yield from sorted(
             candidates,
             key=lambda c: (
                 -c.provenance.score_breakdown.total,

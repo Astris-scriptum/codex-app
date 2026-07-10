@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from uuid import uuid4
 
 from codex_shared import Candidate, SearchMode, SearchRun, SourcePool
@@ -7,8 +8,9 @@ from codex_shared import Candidate, SearchMode, SearchRun, SourcePool
 from .language_packs import LanguagePackManager
 from .lexicon import InMemoryLexiconProvider, LexiconProvider
 from .plugins import ExactAnagramPlugin, PluginRegistry
+from .streaming import SearchEvent
 
-ENGINE_VERSION = "2.4-alpha"
+ENGINE_VERSION = "2.5-alpha"
 
 
 class EngineService:
@@ -34,6 +36,7 @@ class EngineService:
             "engine_version": ENGINE_VERSION,
             "language_packs": [pack.version for pack in self.language_packs()],
             "plugins": [f"{plugin.name}:{plugin.version}" for plugin in self.plugins.list_plugins()],
+            "streaming": True,
         }
 
     def discover(
@@ -43,6 +46,26 @@ class EngineService:
         language: str = "latin",
         search_mode: SearchMode = SearchMode.EXACT_ANAGRAM,
     ) -> list[Candidate]:
+        language_pack, source_pool = self._prepare(source_text, language, search_mode)
+        plugin = self.plugins.get(search_mode)
+        return plugin.discover(source_pool, language_pack)
+
+    def stream(
+        self,
+        source_text: str,
+        *,
+        language: str = "latin",
+        search_mode: SearchMode = SearchMode.EXACT_ANAGRAM,
+    ) -> Iterator[SearchEvent]:
+        language_pack, source_pool = self._prepare(source_text, language, search_mode)
+        plugin = self.plugins.get(search_mode)
+        if hasattr(plugin, "stream"):
+            yield from plugin.stream(source_pool, language_pack)
+            return
+        for index, candidate in enumerate(plugin.discover(source_pool, language_pack), start=1):
+            yield SearchEvent(event_type="candidate", candidate=candidate, sequence=index)
+
+    def _prepare(self, source_text: str, language: str, search_mode: SearchMode):
         language_pack = self.language_pack_manager.load(language)
         source_pool = SourcePool(
             raw_input=source_text,
@@ -56,8 +79,7 @@ class EngineService:
             language_pack=language_pack,
             engine_version=ENGINE_VERSION,
         )
-        plugin = self.plugins.get(search_mode)
-        return plugin.discover(source_pool, language_pack)
+        return language_pack, source_pool
 
     def normalise(self, text: str) -> str:
         return "".join(ch for ch in text.upper() if ch.isalpha())
